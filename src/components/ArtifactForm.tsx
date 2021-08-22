@@ -14,7 +14,6 @@ import {
   Popover,
   PopoverTrigger,
   PopoverContent,
-  PopoverHeader,
   PopoverBody,
   PopoverArrow,
   PopoverCloseButton,
@@ -23,7 +22,7 @@ import {
 import styled from "styled-components";
 import { useState, useEffect, memo } from "react";
 import { MdAddCircle } from "react-icons/md";
-import { FaRegQuestionCircle, FaExternalLinkAlt } from "react-icons/fa";
+import { FaRegQuestionCircle } from "react-icons/fa";
 import _ from "lodash/fp";
 
 import { allowedMainStats, allowedSubStats } from "../data/combinations";
@@ -374,7 +373,7 @@ export function ArtifactForm() {
                     color="white"
                     fontSize="2xl"
                     colorScheme="purple"
-                    aria-label="Calculate"
+                    aria-label="Add substat"
                     onClick={onAddSubStats}
                     icon={<MdAddCircle />}
                   />
@@ -387,7 +386,7 @@ export function ArtifactForm() {
             colorScheme="pink"
             onClick={onCalculate}
           >
-            Calculate
+            Calculate (may take several seconds)
           </Button>
         </VStack>
       </Box>

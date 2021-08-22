@@ -69,8 +69,8 @@ export const calculateChance = <
         allSubstatUpgrades.push([j, i]);
       }
     }
-    const fourUpgrades = new Combination(allSubstatUpgrades, 4).toArray();
-    const fiveUpgrades = new Combination(allSubstatUpgrades, 5).toArray();
+    const fourUpgrades = new BaseN(allSubstatUpgrades, 4).toArray();
+    const fiveUpgrades = new BaseN(allSubstatUpgrades, 5).toArray();
 
     const initialTiers = new BaseN(
       [0, 1, 2, 3],
