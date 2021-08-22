@@ -27,7 +27,9 @@ import _ from "lodash/fp";
 
 import { allowedMainStats, allowedSubStats } from "../data/combinations";
 import { MainStats, SubStats, Types } from "../data/enums";
-import { calculateChance } from "../utils/calculateChance";
+import WorkerCalculateChance from "../utils/calculateChance.worker";
+// import { calculateChance } from "../utils/calculateChance";
+
 import { Select } from "./Select";
 import { getMeaningfulPercents } from "../utils/formatNumber";
 import {
@@ -50,6 +52,8 @@ interface ChartDataEntry {
   resin: number;
   chance: number;
 }
+
+const workerInstance = WorkerCalculateChance();
 
 const typeOptions: { value: Types; label: string }[] = _.values(Types).map(
   (type) => ({ label: type, value: type })
@@ -206,6 +210,7 @@ export function ArtifactForm() {
     subStats: [],
   });
   const [chance, setChance] = useState<number | null>(null);
+  const [calculating, setCalculating] = useState<boolean>(false);
   const [chartData, setChartData] = useState<ChartDataEntry[]>([]);
 
   const onChangeType = (value: Types) => {
@@ -272,9 +277,10 @@ export function ArtifactForm() {
     }));
   };
 
-  const onCalculate = () => {
+  const onCalculate = async () => {
     if (formData.mainStat) {
-      const chance = calculateChance({
+      setCalculating(true);
+      const chance: number = await workerInstance.calculateChance({
         type: formData.type,
         mainStat: formData.mainStat,
         subStats: formData.subStats.reduce((acc, [subStat, value]) => {
@@ -284,6 +290,17 @@ export function ArtifactForm() {
           };
         }, {}),
       });
+      setCalculating(false);
+      // const chance = calculateChance({
+      //   type: formData.type,
+      //   mainStat: formData.mainStat,
+      //   subStats: formData.subStats.reduce((acc, [subStat, value]) => {
+      //     return {
+      //       ...acc,
+      //       [subStat]: value,
+      //     };
+      //   }, {}),
+      // });
       const invertedChance = 1 - chance;
       const cumulativeChartData: { resin: number; chance: number }[] = [];
       let resinSpent = 0,
@@ -384,6 +401,7 @@ export function ArtifactForm() {
           <Button
             disabled={!formData.mainStat}
             colorScheme="pink"
+            isLoading={calculating}
             onClick={onCalculate}
           >
             Calculate (may take several seconds)
