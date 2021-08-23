@@ -13,3 +13,9 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+@media screen and (max-width: 600px) {
+  body {
+    font-size: calc(10px + 1vw);
+  }
+}

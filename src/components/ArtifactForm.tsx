@@ -24,7 +24,7 @@ import { Popup } from "./Popup";
 import { allowedMainStats, allowedSubStats } from "../data/combinations";
 import { MainStats, SubStats, Types } from "../data/enums";
 import WorkerCalculateChance from "../utils/calculateChance.worker";
-// import { calculateChance } from "../utils/calculateChance";
+import type { CalculateResult } from "../utils/calculateChance.worker";
 
 import { Select } from "./Select";
 import { getMeaningfulPercents } from "../utils/formatNumber";
@@ -69,7 +69,13 @@ const QuestionIconContainer = styled.div`
 `;
 
 const ResultsBox = memo(
-  ({ chance, chartData }: { chance: number; chartData: ChartDataEntry[] }) => {
+  ({
+    chances,
+    chartData,
+  }: {
+    chances: CalculateResult;
+    chartData: ChartDataEntry[];
+  }) => {
     return (
       <Box
         margin={1}
@@ -80,15 +86,41 @@ const ResultsBox = memo(
         padding={2}
         paddingLeft={4}
       >
+        {chances.chanceSubsMatch && (
+          <Flex alignItems="center" flexFlow="row nowrap">
+            <Text>Chance of getting an artifact with these stats:</Text>
+            <Text
+              paddingLeft={2}
+              paddingRight={2}
+              fontSize="120%"
+              fontWeight="bold"
+            >
+              {getMeaningfulPercents(chances.chanceSubsMatch)}
+            </Text>
+          </Flex>
+        )}
+        {chances.upgradeChance && (
+          <Flex alignItems="center" flexFlow="row nowrap">
+            <Text>Chance of upgrading to desired numbers:</Text>
+            <Text
+              paddingLeft={2}
+              paddingRight={2}
+              fontSize="120%"
+              fontWeight="bold"
+            >
+              {getMeaningfulPercents(chances.upgradeChance)}
+            </Text>
+          </Flex>
+        )}
         <Flex alignItems="center" flexFlow="row nowrap">
-          <Text>Chance in one run (20 resin):</Text>
+          <Text>Total chance in one run (20 resin):</Text>
           <Text
             paddingLeft={2}
             paddingRight={2}
-            fontSize="large"
+            fontSize="120%"
             fontWeight="bold"
           >
-            {getMeaningfulPercents(chance)}
+            {getMeaningfulPercents(chances.chance)}
           </Text>
           <Popup
             target={
@@ -158,7 +190,7 @@ const ResultsBox = memo(
           />
         </Flex>
         <Text>Cumulative chance to get this artifact at least once:</Text>
-        {chance > 0 && !_.isEmpty(chartData) && (
+        {chances.chance > 0 && !_.isEmpty(chartData) && (
           <ResponsiveContainer width="100%" aspect={2.5}>
             <AreaChart
               data={chartData}
@@ -213,7 +245,7 @@ export function ArtifactForm() {
     type: Types.Flower,
     subStats: [],
   });
-  const [chance, setChance] = useState<number | null>(null);
+  const [chances, setChances] = useState<Partial<CalculateResult>>({});
   const [calculating, setCalculating] = useState<boolean>(false);
   const [chartData, setChartData] = useState<ChartDataEntry[]>([]);
 
@@ -277,7 +309,6 @@ export function ArtifactForm() {
 
   const onChangeSubStatNumber =
     (subStat: SubStats) => (stringValue: string, value: number) => {
-      console.log(stringValue, value);
       setFormData((form) => ({
         ...form,
         subStats: form.subStats.map((pair) =>
@@ -296,23 +327,33 @@ export function ArtifactForm() {
   const onCalculate = async () => {
     if (formData.mainStat) {
       setCalculating(true);
-      const chance = await workerInstance.calculateChance({
-        acceptBothSets: formData.acceptBothSets,
-        type: formData.type,
-        mainStat: formData.mainStat,
-        subStats: formData.subStats.reduce((acc, [subStat, value]) => {
-          return {
-            ...acc,
-            [subStat]: value,
-          };
-        }, {}),
-      });
+      performance.mark("chance");
+      const { chance, upgradeChance, chanceSubsMatch } =
+        await workerInstance.calculateChance({
+          acceptBothSets: formData.acceptBothSets,
+          type: formData.type,
+          mainStat: formData.mainStat,
+          subStats: formData.subStats.reduce((acc, [subStat, value]) => {
+            return {
+              ...acc,
+              [subStat]: value,
+            };
+          }, {}),
+        });
+      performance.measure("Time to calculate chances", "chance");
       setCalculating(false);
+      performance.getEntriesByType("measure").forEach((perfMeasure) => {
+        console.log(perfMeasure.name, perfMeasure.duration, "ms");
+      });
+      performance.clearMarks();
+      performance.clearMeasures();
 
       const invertedChance = 1 - chance;
       const cumulativeChartData: { resin: number; chance: number }[] = [];
       let resinSpent = 0,
         cumulativeInvertedChance = 1;
+      const step =
+        chance > 0.01 ? 1 : chance > 0.005 ? 4 : chance > 0.001 ? 8 : 16;
       // 2920 is 365 days of 8 domain runs per day
       for (let i = 0; i < 2920; i++) {
         if (cumulativeInvertedChance < 0.05) {
@@ -320,13 +361,15 @@ export function ArtifactForm() {
         }
         resinSpent += 20;
         cumulativeInvertedChance *= invertedChance;
-        cumulativeChartData.push({
-          resin: resinSpent,
-          chance: 1 - cumulativeInvertedChance,
-        });
+        if (!((i + 1) % step)) {
+          cumulativeChartData.push({
+            resin: resinSpent,
+            chance: 1 - cumulativeInvertedChance,
+          });
+        }
       }
       setChartData(cumulativeChartData);
-      setChance(chance);
+      setChances({ chance, upgradeChance, chanceSubsMatch });
     }
   };
 
@@ -428,8 +471,11 @@ export function ArtifactForm() {
           </Button>
         </VStack>
       </Box>
-      {!_.isNil(chance) && (
-        <ResultsBox chance={chance} chartData={chartData}></ResultsBox>
+      {!_.isNil(chances.chance) && (
+        <ResultsBox
+          chances={chances as CalculateResult}
+          chartData={chartData}
+        />
       )}
     </Flex>
   );

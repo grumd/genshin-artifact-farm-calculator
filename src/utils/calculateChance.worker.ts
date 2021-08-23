@@ -22,7 +22,23 @@ interface CalculateOptions<
   };
 }
 
+export interface CalculateResult {
+  chance: number;
+  upgradeChance?: number;
+  chanceSubsMatch?: number;
+}
+
 const chanceOfFourSubs = 0.2;
+const allSubstatUpgrades: [number, number][] = [];
+for (let i = 0; i < 4; i++) {
+  // every tier of upgrade
+  for (let j = 0; j < 4; j++) {
+    // every substat
+    allSubstatUpgrades.push([j, i]);
+  }
+}
+const fourUpgrades = new BaseN(allSubstatUpgrades, 4).toArray();
+const fiveUpgrades = new BaseN(allSubstatUpgrades, 5).toArray();
 
 export const calculateChance = async <
   T extends Types,
@@ -33,10 +49,12 @@ export const calculateChance = async <
   type,
   mainStat,
   subStats = {},
-}: CalculateOptions<T, M, Subs>): Promise<number> => {
+}: CalculateOptions<T, M, Subs>): Promise<CalculateResult> => {
   // Base chance is 1.07 because of https://docs.google.com/spreadsheets/d/1RcuniapqS6nOP05OCH0ui10Vo3bWu0AvFbhgcHzTybY/edit#gid=2061598189
   // 1.07 is the average number of 5* artifacts from one run of a domain
-  let chance = 1.07;
+  let chance = 1.07,
+    upgradeChance,
+    totalChanceSubsMatch;
 
   // Getting the correct artifact set
   if (!acceptBothSets) {
@@ -63,19 +81,9 @@ export const calculateChance = async <
     console.log("Getting initial substats that fit criteria", chanceSubsMatch);
 
     chance *= chanceSubsMatch;
+    totalChanceSubsMatch = chance;
 
     // Getting enough substats to match the number
-    const allSubstatUpgrades: [number, number][] = [];
-    for (let i = 0; i < 4; i++) {
-      // every tier of upgrade
-      for (let j = 0; j < 4; j++) {
-        // every substat
-        allSubstatUpgrades.push([j, i]);
-      }
-    }
-    const fourUpgrades = new BaseN(allSubstatUpgrades, 4).toArray();
-    const fiveUpgrades = new BaseN(allSubstatUpgrades, 5).toArray();
-
     const getFittingUpgrades = _.reduce(
       (sumChances: number, upgrades: [number, number][]): number => {
         const subsTotals: Partial<Record<SubStats, number>> = {};
@@ -130,14 +138,19 @@ export const calculateChance = async <
       fiveFittingUpgrades / fiveUpgrades.length
     );
 
-    chance *=
+    upgradeChance =
       chanceOfFourSubs * (fiveFittingUpgrades / fiveUpgrades.length) +
       ((1 - chanceOfFourSubs) * fourFittingUpgrades) / fourUpgrades.length;
+    chance *= upgradeChance;
   }
 
   console.log("Final chance:", chance);
 
-  return chance;
+  return {
+    chance,
+    upgradeChance,
+    chanceSubsMatch: totalChanceSubsMatch,
+  };
 };
 
 export default function Worker() {
