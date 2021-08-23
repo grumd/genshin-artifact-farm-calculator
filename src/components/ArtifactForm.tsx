@@ -467,7 +467,7 @@ export function ArtifactForm() {
             isLoading={calculating}
             onClick={onCalculate}
           >
-            Calculate (may take several seconds)
+            Calculate
           </Button>
         </VStack>
       </Box>
