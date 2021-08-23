@@ -45,7 +45,7 @@ import {
 interface FormData {
   type: Types;
   mainStat?: MainStats;
-  subStats: [SubStats, number][];
+  subStats: [SubStats, number, string][];
 }
 
 interface ChartDataEntry {
@@ -246,7 +246,7 @@ export function ArtifactForm() {
     if (subStatOptions.length) {
       setFormData((form) => ({
         ...form,
-        subStats: [...form.subStats, [subStatOptions[0].value, 0]],
+        subStats: [...form.subStats, [subStatOptions[0].value, 0, "0"]],
       }));
     }
   };
@@ -255,17 +255,18 @@ export function ArtifactForm() {
     setFormData((form) => ({
       ...form,
       subStats: form.subStats.map((pair) =>
-        pair[0] === subStat ? [value, 0] : pair
+        pair[0] === subStat ? [value, 0, "0"] : pair
       ),
     }));
   };
 
   const onChangeSubStatNumber =
     (subStat: SubStats) => (stringValue: string, value: number) => {
+      console.log(stringValue, value);
       setFormData((form) => ({
         ...form,
         subStats: form.subStats.map((pair) =>
-          pair[0] === subStat ? [subStat, value] : pair
+          pair[0] === subStat ? [subStat, value || 0, stringValue || "0"] : pair
         ),
       }));
     };
@@ -353,7 +354,7 @@ export function ArtifactForm() {
             <FormLabel>Sub stats (optional):</FormLabel>
             <VStack alignItems="start" width="100%">
               {formData.subStats.map((value, index) => {
-                const [subStat, numValue] = value;
+                const [subStat, , stringValue] = value;
                 return (
                   <HStack key={`substat-${index}`} width="100%">
                     <FormControl id={`substat-${index}-name`}>
@@ -371,7 +372,9 @@ export function ArtifactForm() {
                     </Text>
                     <FormControl id={`substat-${index}-value`}>
                       <NumberInput
-                        value={numValue}
+                        min={0}
+                        defaultValue={0}
+                        value={stringValue}
                         onChange={onChangeSubStatNumber(subStat)}
                       >
                         <NumberInputField />
