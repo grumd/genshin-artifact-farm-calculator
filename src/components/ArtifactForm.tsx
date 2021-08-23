@@ -11,12 +11,6 @@ import {
   NumberInputField,
   CloseButton,
   Flex,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverBody,
-  PopoverArrow,
-  PopoverCloseButton,
   Link,
   Switch,
 } from "@chakra-ui/react";
@@ -26,6 +20,7 @@ import { MdAddCircle } from "react-icons/md";
 import { FaRegQuestionCircle } from "react-icons/fa";
 import _ from "lodash/fp";
 
+import { Popup } from "./Popup";
 import { allowedMainStats, allowedSubStats } from "../data/combinations";
 import { MainStats, SubStats, Types } from "../data/enums";
 import WorkerCalculateChance from "../utils/calculateChance.worker";
@@ -70,6 +65,7 @@ const TooltipContainer = styled.div`
 
 const QuestionIconContainer = styled.div`
   cursor: pointer;
+  font-size: 120%;
 `;
 
 const ResultsBox = memo(
@@ -84,7 +80,7 @@ const ResultsBox = memo(
         padding={2}
         paddingLeft={4}
       >
-        <Flex alignItems="baseline" flexFlow="row nowrap">
+        <Flex alignItems="center" flexFlow="row nowrap">
           <Text>Chance in one run (20 resin):</Text>
           <Text
             paddingLeft={2}
@@ -94,16 +90,14 @@ const ResultsBox = memo(
           >
             {getMeaningfulPercents(chance)}
           </Text>
-          <Popover>
-            <PopoverTrigger>
+          <Popup
+            target={
               <QuestionIconContainer>
                 <FaRegQuestionCircle />
               </QuestionIconContainer>
-            </PopoverTrigger>
-            <PopoverContent color="black" width={"70%"}>
-              <PopoverArrow />
-              <PopoverCloseButton />
-              <PopoverBody>
+            }
+            content={
+              <div>
                 <Text fontWeight="bold" marginRight={6}>
                   This calculation assumes the following:
                 </Text>
@@ -121,7 +115,17 @@ const ResultsBox = memo(
                 <Text>50% chance to get one of the two sets;</Text>
                 <Text>20% chance to get the correct artifact type;</Text>
                 <Text>
-                  Chance to get the correct main stat and sub-stats;{" "}
+                  20% chance to get 4 initial sub-stats, and 80% to get 3.{" "}
+                  <Link
+                    color="teal"
+                    isExternal
+                    href="https://genshin-impact.fandom.com/wiki/Loot_System/Artifact_Drop_Distribution#Initial_Sub_Stat_Number_Distribution"
+                  >
+                    Source
+                  </Link>
+                </Text>
+                <Text>
+                  Calculated chance to get the correct main stat and sub-stats;{" "}
                   <Link
                     color="teal"
                     isExternal
@@ -139,9 +143,6 @@ const ResultsBox = memo(
                   </Link>
                 </Text>
                 <Text marginTop={2}>
-                  Note: chance to get 4 initial sub-stats is assumed to be 25%.
-                </Text>
-                <Text>
                   Contact me at{" "}
                   <Link
                     color="teal"
@@ -150,11 +151,11 @@ const ResultsBox = memo(
                   >
                     /u/grumd
                   </Link>{" "}
-                  if you have more accurate information.
+                  if you have any questions.
                 </Text>
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
+              </div>
+            }
+          />
         </Flex>
         <Text>Cumulative chance to get this artifact at least once:</Text>
         {chance > 0 && !_.isEmpty(chartData) && (
