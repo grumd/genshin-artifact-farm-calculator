@@ -1,24 +1,26 @@
 import { BaseN, Combination } from "js-combinatorics";
 import _ from "lodash/fp";
 
-import { mainStatChances, StatMap, upgradeTiers } from "../data/chances";
+import {
+  mainStatChances,
+  MainSubChanceMap,
+  StatMap,
+  subStatChances,
+  upgradeTiers,
+} from "../data/chances";
 import {
   allowedSubStats,
   MainStatsByType,
   SubStatsByMain,
 } from "../data/combinations";
-import { MainStats, SubStats, Types } from "../data/enums";
+import { SubStats, Types } from "../data/enums";
 
-interface CalculateOptions<
-  T extends Types,
-  M extends MainStatsByType<T>,
-  Subs extends SubStatsByMain<M>
-> {
+interface CalculateOptions<T extends Types, M extends MainStatsByType<T>> {
   acceptBothSets: boolean;
   type: T;
   mainStat: M;
   subStats?: {
-    [Sub in Subs]?: number;
+    [Sub in SubStatsByMain<M>]?: number;
   };
 }
 
@@ -42,48 +44,74 @@ const fiveUpgrades = new BaseN(allSubstatUpgrades, 5).toArray();
 
 export const calculateChance = async <
   T extends Types,
-  M extends MainStatsByType<T>,
-  Subs extends SubStatsByMain<M>
+  M extends MainStatsByType<T>
 >({
   acceptBothSets,
   type,
   mainStat,
   subStats = {},
-}: CalculateOptions<T, M, Subs>): Promise<CalculateResult> => {
+}: CalculateOptions<T, M>): Promise<CalculateResult> => {
   // Base chance is 1.07 because of https://docs.google.com/spreadsheets/d/1RcuniapqS6nOP05OCH0ui10Vo3bWu0AvFbhgcHzTybY/edit#gid=2061598189
   // 1.07 is the average number of 5* artifacts from one run of a domain
   let chance = 1.07,
     upgradeChance,
     totalChanceSubsMatch;
 
-  // Getting the correct artifact set
+  // GETTING THE CORRECT ARTIFACT SET
   if (!acceptBothSets) {
     chance *= 0.5;
   }
 
-  // Getting the correct type
+  // GETTING THE CORRECT TYPE
   chance *= 0.2;
 
-  // Getting the correct main stat
-  const byTypes: StatMap<Types> = mainStatChances[type]; // TS hack because TS can't index these mapped types :(
+  // GETTING THE CORRECT MAIN STAT
+  const byTypes = mainStatChances[type] as StatMap<T>; // TS hack because TS can't index these mapped types :(
   chance *= byTypes[mainStat];
 
-  // Getting all the sub-stats we need
-  const neededSubStatList = _.keys(subStats) as Subs[];
+  // GETTING ALL THE SUB-STATS WE NEED
+  const neededSubStatList = _.keys(subStats) as SubStatsByMain<M>[];
   if (neededSubStatList.length > 0) {
-    const possibleSubStats = allowedSubStats[mainStat as MainStats];
-    const substatsCombinations = new Combination(possibleSubStats, 4).toArray();
-    const matchesSubs = _.countBy((subs: SubStats[]) =>
-      neededSubStatList.every((needSub) => subs.includes(needSub))
-    );
-    const matchedSubstatsCount = matchesSubs(substatsCombinations).true || 0;
-    const chanceSubsMatch = matchedSubstatsCount / substatsCombinations.length;
+    // CHANCE OF GETTING THE SUB-STATS WE NEED INITIALLY
+    // Getting all combinations of 4 sub-stats that are possible
+    const substatsCombinations = new Combination(
+      allowedSubStats[mainStat],
+      4
+    ).toArray() as [
+      SubStatsByMain<M>,
+      SubStatsByMain<M>,
+      SubStatsByMain<M>,
+      SubStatsByMain<M>
+    ][];
+
+    const subChance = (subStatChances[type] as MainSubChanceMap<T>)[mainStat];
+    // Combinations of sub-stats have different chances of appearing, calculate chances
+    const combinationsWithChances = substatsCombinations.map((comb) => {
+      let weight = 1;
+      let chance = 1;
+      for (let i = 0; i < 4; i++) {
+        const ch = subChance[comb[i]];
+        chance *= ch / weight;
+        weight -= ch;
+      }
+      return [comb, chance] as const;
+    });
+    // Count how many combinations fit our criteria
+    let totalWeightsMatched = 0;
+    let totalWeights = 0;
+    combinationsWithChances.forEach((info) => {
+      if (neededSubStatList.every((needSub) => info[0].includes(needSub))) {
+        totalWeightsMatched += info[1];
+      }
+      totalWeights += info[1];
+    });
+    const chanceSubsMatch = totalWeightsMatched / totalWeights;
     console.log("Getting initial substats that fit criteria", chanceSubsMatch);
 
     chance *= chanceSubsMatch;
     totalChanceSubsMatch = chance;
 
-    // Getting enough substats to match the number
+    // GETTING ENOUGH SUBSTAT UPGRADES TO MATCH THE NUMBER
     const getFittingUpgrades = _.reduce(
       (sumChances: number, upgrades: [number, number][]): number => {
         const subsTotals: Partial<Record<SubStats, number>> = {};
@@ -99,6 +127,7 @@ export const calculateChance = async <
         for (let i = 0; i < neededSubStatList.length; i++) {
           const sub = neededSubStatList[i];
           let didThisSubStatFit = false;
+          // We need to also take into account that first roll of initial sub-stats can be one of 4 tiers
           for (let tier = 0; tier < 4; tier++) {
             const initialSubStatValue = upgradeTiers[sub][tier];
             if (
@@ -116,7 +145,6 @@ export const calculateChance = async <
             break;
           }
         }
-
         return sumChances + chanceThatItFits;
       },
       0

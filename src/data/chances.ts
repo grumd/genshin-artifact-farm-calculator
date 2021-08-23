@@ -1,5 +1,5 @@
 import { MainStatsByType, SubStatsByMain } from "./combinations";
-import { Stats, SubStats, Types } from "./enums";
+import { MainStats, Stats, SubStats, Types } from "./enums";
 
 export type StatMap<T extends Types> = { [Stat in MainStatsByType<T>]: number };
 export type TypeMap = { [T in Types]: StatMap<T> };
@@ -57,13 +57,16 @@ const dmgBonusChances: {
   [Stats.CD]: 0.0682,
 };
 
-export const subStatChances: {
-  [T in Types]: {
-    [MainStat in MainStatsByType<T>]: {
-      [SubStat in SubStatsByMain<MainStat>]: number;
-    };
-  };
-} = {
+export type SubChanceMap<MainStat extends MainStats> = {
+  [SubStat in SubStatsByMain<MainStat>]: number;
+};
+export type MainSubChanceMap<T extends Types> = {
+  [MainStat in MainStatsByType<T>]: SubChanceMap<MainStat>;
+};
+export type TypeMainSubChanceMap = {
+  [T in Types]: MainSubChanceMap<T>;
+};
+export const subStatChances: TypeMainSubChanceMap = {
   [Types.Flower]: {
     [Stats.HPFlat]: {
       [Stats.ATKFlat]: 0.1579,

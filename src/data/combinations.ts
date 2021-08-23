@@ -91,10 +91,14 @@ export const allowedMainStats: { [T in Types]: MainStatsByType<T>[] } = {
 };
 
 // All substats are allowed except for the duplicate of main stat
-export const allowedSubStats: Record<MainStats, SubStats[]> =
-  allMainStats.reduce((acc, mainStat) => {
+type AllowedSubStats = Record<MainStats, SubStats[]>;
+
+export const allowedSubStats: AllowedSubStats = allMainStats.reduce(
+  (acc, mainStat) => {
     return {
       ...acc,
       [mainStat]: _.without([mainStat], allSubStats),
     };
-  }, {} as Record<MainStats, SubStats[]>);
+  },
+  {} as AllowedSubStats
+);
