@@ -21,7 +21,7 @@ interface CalculateOptions<
   };
 }
 
-const chanceOfFourSubs = 0.25;
+const chanceOfFourSubs = 0.2;
 
 export const calculateChance = async <
   T extends Types,
@@ -72,62 +72,67 @@ export const calculateChance = async <
     const fourUpgrades = new BaseN(allSubstatUpgrades, 4).toArray();
     const fiveUpgrades = new BaseN(allSubstatUpgrades, 5).toArray();
 
-    const initialTiers = new BaseN(
-      [0, 1, 2, 3],
-      neededSubStatList.length
-    ).toArray();
-
-    const addInitialTiers = (
-      upgradesList: [number, number][][]
-    ): [number, number][][] =>
-      _.flatMap((tiers) => {
-        return upgradesList.map((upgrades) => [
-          ...tiers.map((tier, index): [number, number] => [index, tier]),
-          ...upgrades,
-        ]);
-      }, initialTiers);
-
-    const fourUpgradesWithInitial = addInitialTiers(fourUpgrades);
-    const fiveUpgradesWithInitial = addInitialTiers(fiveUpgrades);
-
-    const getFittingUpgrades = _.filter<[number, number][]>((upgrades) => {
-      const subsTotals: Partial<Record<SubStats, number>> = {};
-      upgrades.forEach(([statNum, tier]) => {
-        if (neededSubStatList.length > statNum) {
+    const getFittingUpgrades = _.reduce(
+      (sumChances: number, upgrades: [number, number][]): number => {
+        const subsTotals: Partial<Record<SubStats, number>> = {};
+        upgrades.forEach(([statNum, tier]) => {
           // only upgrades that affect the substats we need matter to us, ignore the rest
-          const key = neededSubStatList[statNum];
-          subsTotals[key] =
-            ((subsTotals[key] as number) || 0) + upgradeTiers[key][tier];
+          if (neededSubStatList.length > statNum) {
+            const key = neededSubStatList[statNum];
+            subsTotals[key] =
+              ((subsTotals[key] as number) || 0) + upgradeTiers[key][tier];
+          }
+        });
+        let chanceThatItFits = 1;
+        for (let i = 0; i < neededSubStatList.length; i++) {
+          const sub = neededSubStatList[i];
+          let didThisSubStatFit = false;
+          for (let tier = 0; tier < 4; tier++) {
+            const initialSubStatValue = upgradeTiers[sub][tier];
+            if (
+              initialSubStatValue + (subsTotals[sub as SubStats] || 0) >=
+              subStats[sub]
+            ) {
+              // With this initial value substat fits the criteria
+              didThisSubStatFit = true;
+              chanceThatItFits *= 1 - 0.25 * tier;
+              break;
+            }
+          }
+          if (!didThisSubStatFit) {
+            chanceThatItFits = 0;
+            break;
+          }
         }
-      });
-      const isFitting = neededSubStatList.every(
-        (sub) => subStats[sub] <= (subsTotals[sub] || 0)
-      );
-      // isFitting && console.log(isFitting, subsTotals, subStats, upgrades);
-      return isFitting;
-    });
 
-    const fourFittingUpgrades = getFittingUpgrades(fourUpgradesWithInitial);
-    const fiveFittingUpgrades = getFittingUpgrades(fiveUpgradesWithInitial);
+        return sumChances + chanceThatItFits;
+      },
+      0
+    );
+
+    const fourFittingUpgrades = getFittingUpgrades(fourUpgrades);
+    const fiveFittingUpgrades = getFittingUpgrades(fiveUpgrades);
+
     console.log(
       "Getting desired with 4 upgrades:",
-      fourFittingUpgrades.length,
-      fourUpgradesWithInitial.length,
-      fourFittingUpgrades.length / fourUpgradesWithInitial.length
+      fourFittingUpgrades,
+      fourUpgrades.length,
+      fourFittingUpgrades / fourUpgrades.length
     );
     console.log(
       "Getting desired with 5 upgrades:",
-      fiveFittingUpgrades.length,
-      fiveUpgradesWithInitial.length,
-      fiveFittingUpgrades.length / fiveUpgradesWithInitial.length
+      fiveFittingUpgrades,
+      fiveUpgrades.length,
+      fiveFittingUpgrades / fiveUpgrades.length
     );
 
     chance *=
-      chanceOfFourSubs *
-        (fiveFittingUpgrades.length / fiveUpgradesWithInitial.length) +
-      ((1 - chanceOfFourSubs) * fourFittingUpgrades.length) /
-        fourUpgradesWithInitial.length;
+      chanceOfFourSubs * (fiveFittingUpgrades / fiveUpgrades.length) +
+      ((1 - chanceOfFourSubs) * fourFittingUpgrades) / fourUpgrades.length;
   }
+
+  console.log("Final chance:", chance);
+
   return chance;
 };
 
