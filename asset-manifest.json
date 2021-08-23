@@ -1,25 +1,25 @@
 {
   "files": {
     "main.css": "/genshin-artifact-farm-calculator/static/css/main.42eda5c0.chunk.css",
-    "main.js": "/genshin-artifact-farm-calculator/static/js/main.7895031a.chunk.js",
-    "main.js.map": "/genshin-artifact-farm-calculator/static/js/main.7895031a.chunk.js.map",
-    "runtime-main.js": "/genshin-artifact-farm-calculator/static/js/runtime-main.1afeb4f6.js",
-    "runtime-main.js.map": "/genshin-artifact-farm-calculator/static/js/runtime-main.1afeb4f6.js.map",
-    "static/js/2.a4afb470.chunk.js": "/genshin-artifact-farm-calculator/static/js/2.a4afb470.chunk.js",
-    "static/js/2.a4afb470.chunk.js.map": "/genshin-artifact-farm-calculator/static/js/2.a4afb470.chunk.js.map",
-    "static/js/3.8748effb.chunk.js": "/genshin-artifact-farm-calculator/static/js/3.8748effb.chunk.js",
-    "static/js/3.8748effb.chunk.js.map": "/genshin-artifact-farm-calculator/static/js/3.8748effb.chunk.js.map",
-    "38828fa349701458f9fa.worker.js": "/genshin-artifact-farm-calculator/38828fa349701458f9fa.worker.js",
-    "38828fa349701458f9fa.worker.js.LICENSE.txt": "/genshin-artifact-farm-calculator/38828fa349701458f9fa.worker.js.LICENSE.txt",
-    "38828fa349701458f9fa.worker.js.map": "/genshin-artifact-farm-calculator/38828fa349701458f9fa.worker.js.map",
+    "main.js": "/genshin-artifact-farm-calculator/static/js/main.2ddd5374.chunk.js",
+    "main.js.map": "/genshin-artifact-farm-calculator/static/js/main.2ddd5374.chunk.js.map",
+    "runtime-main.js": "/genshin-artifact-farm-calculator/static/js/runtime-main.111cdcda.js",
+    "runtime-main.js.map": "/genshin-artifact-farm-calculator/static/js/runtime-main.111cdcda.js.map",
+    "static/js/2.1b1895a4.chunk.js": "/genshin-artifact-farm-calculator/static/js/2.1b1895a4.chunk.js",
+    "static/js/2.1b1895a4.chunk.js.map": "/genshin-artifact-farm-calculator/static/js/2.1b1895a4.chunk.js.map",
+    "static/js/3.6ed1d47f.chunk.js": "/genshin-artifact-farm-calculator/static/js/3.6ed1d47f.chunk.js",
+    "static/js/3.6ed1d47f.chunk.js.map": "/genshin-artifact-farm-calculator/static/js/3.6ed1d47f.chunk.js.map",
+    "967ea5c3a09c68450e27.worker.js": "/genshin-artifact-farm-calculator/967ea5c3a09c68450e27.worker.js",
+    "967ea5c3a09c68450e27.worker.js.LICENSE.txt": "/genshin-artifact-farm-calculator/967ea5c3a09c68450e27.worker.js.LICENSE.txt",
+    "967ea5c3a09c68450e27.worker.js.map": "/genshin-artifact-farm-calculator/967ea5c3a09c68450e27.worker.js.map",
     "index.html": "/genshin-artifact-farm-calculator/index.html",
     "static/css/main.42eda5c0.chunk.css.map": "/genshin-artifact-farm-calculator/static/css/main.42eda5c0.chunk.css.map",
-    "static/js/2.a4afb470.chunk.js.LICENSE.txt": "/genshin-artifact-farm-calculator/static/js/2.a4afb470.chunk.js.LICENSE.txt"
+    "static/js/2.1b1895a4.chunk.js.LICENSE.txt": "/genshin-artifact-farm-calculator/static/js/2.1b1895a4.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.1afeb4f6.js",
-    "static/js/2.a4afb470.chunk.js",
+    "static/js/runtime-main.111cdcda.js",
+    "static/js/2.1b1895a4.chunk.js",
     "static/css/main.42eda5c0.chunk.css",
-    "static/js/main.7895031a.chunk.js"
+    "static/js/main.2ddd5374.chunk.js"
   ]
 }
