@@ -7,7 +7,7 @@ import {
   MainStatsByType,
   SubStatsByMain,
 } from "../data/combinations";
-import { MainStats, SubStats, Types } from "../data/enums";
+import { MainStats, Stats, SubStats, Types } from "../data/enums";
 
 interface CalculateOptions<
   T extends Types,
@@ -17,6 +17,7 @@ interface CalculateOptions<
   acceptBothSets: boolean;
   type: T;
   mainStat: M;
+  critValue: number | null;
   subStats?: {
     [Sub in Subs]?: number;
   };
@@ -32,6 +33,7 @@ export const calculateChance = async <
   acceptBothSets,
   type,
   mainStat,
+  critValue,
   subStats = {},
 }: CalculateOptions<T, M, Subs>): Promise<number> => {
   // Base chance is 1.07 because of https://docs.google.com/spreadsheets/d/1RcuniapqS6nOP05OCH0ui10Vo3bWu0AvFbhgcHzTybY/edit#gid=2061598189
@@ -55,8 +57,10 @@ export const calculateChance = async <
   if (neededSubStatList.length > 0) {
     const possibleSubStats = allowedSubStats[mainStat as MainStats];
     const substatsCombinations = new Combination(possibleSubStats, 4).toArray();
-    const matchesSubs = _.countBy((subs: SubStats[]) =>
-      neededSubStatList.every((needSub) => subs.includes(needSub))
+    const matchesSubs = _.countBy(
+      (subs: SubStats[]) =>
+        neededSubStatList.every((needSub) => subs.includes(needSub)) &&
+        (critValue ? subs.includes(Stats.CR) && subs.includes(Stats.CD) : true)
     );
     const matchedSubstatsCount = matchesSubs(substatsCombinations).true || 0;
     const chanceSubsMatch = matchedSubstatsCount / substatsCombinations.length;

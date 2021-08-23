@@ -22,7 +22,7 @@ import _ from "lodash/fp";
 
 import { Popup } from "./Popup";
 import { allowedMainStats, allowedSubStats } from "../data/combinations";
-import { MainStats, SubStats, Types } from "../data/enums";
+import { MainStats, Stats, SubStats, Types } from "../data/enums";
 import WorkerCalculateChance from "../utils/calculateChance.worker";
 // import { calculateChance } from "../utils/calculateChance";
 
@@ -38,11 +38,13 @@ import {
   YAxis,
 } from "recharts";
 
+type SubStatFieldTypes = SubStats | typeof CRIT_VALUE;
+
 interface FormData {
   acceptBothSets: boolean;
   type: Types;
   mainStat?: MainStats;
-  subStats: [SubStats, number, string][];
+  subStats: [SubStatFieldTypes, number, string][];
 }
 
 interface ChartDataEntry {
@@ -52,9 +54,16 @@ interface ChartDataEntry {
 
 const workerInstance = WorkerCalculateChance();
 
+const CRIT_VALUE = "critValue";
+
 const typeOptions: { value: Types; label: string }[] = _.values(Types).map(
   (type) => ({ label: type, value: type })
 );
+
+const mapSubStatOption = (subStat: SubStatFieldTypes) => ({
+  label: subStat === CRIT_VALUE ? "CRIT Value (2xRate% + DMG%)" : subStat,
+  value: subStat,
+});
 
 const TooltipContainer = styled.div`
   border-radius: 5px;
@@ -233,7 +242,11 @@ export function ArtifactForm() {
   };
 
   const onChangeMainStat = (value: MainStats) => {
-    setFormData((form) => ({ ...form, mainStat: value, subStats: [] })); // reset sub stats
+    setFormData((form) => ({
+      ...form,
+      mainStat: value,
+      subStats: [],
+    })); // reset sub stats
   };
 
   const mainStatOptions = allowedMainStats[formData.type].map((mainStat) => ({
@@ -241,15 +254,17 @@ export function ArtifactForm() {
     value: mainStat,
   }));
 
-  const subStatList = formData.mainStat
-    ? allowedSubStats[formData.mainStat]
+  const subStatList: SubStatFieldTypes[] = formData.mainStat
+    ? [CRIT_VALUE, ...allowedSubStats[formData.mainStat]]
     : [];
   const subStatOptions = subStatList
-    .filter((subStat) => !formData.subStats.find(([s]) => s === subStat))
-    .map((subStat) => ({
-      label: subStat,
-      value: subStat,
-    }));
+    .filter((subStat) => {
+      const alreadyUsingStat = formData.subStats.some(([s]) => s === subStat);
+      const usingCritValue = formData.subStats.some(([s]) => s === CRIT_VALUE);
+      const isCritStat = subStat === Stats.CR || subStat === Stats.CD;
+      return !alreadyUsingStat && !(usingCritValue && isCritStat);
+    })
+    .map(mapSubStatOption);
 
   useEffect(() => {
     if (!formData.mainStat) {
@@ -257,26 +272,51 @@ export function ArtifactForm() {
     }
   }, [formData.mainStat, mainStatOptions]);
 
+  useEffect(() => {
+    if (
+      formData.subStats.some((sub) => sub[0] === CRIT_VALUE) &&
+      formData.subStats.some(
+        (sub) => sub[0] === Stats.CR || sub[0] === Stats.CD
+      )
+    ) {
+      setFormData((form) => ({
+        ...form,
+        subStats: form.subStats.filter(
+          (sub) => sub[0] !== Stats.CR && sub[0] !== Stats.CD
+        ),
+      }));
+    }
+  }, [formData.mainStat, formData.subStats, mainStatOptions]);
+
   const onAddSubStats = () => {
     if (subStatOptions.length) {
       setFormData((form) => ({
         ...form,
-        subStats: [...form.subStats, [subStatOptions[0].value, 0, "0"]],
+        subStats: [
+          ...form.subStats,
+          [
+            subStatOptions.find((opt) => opt.value !== CRIT_VALUE)?.value ||
+              subStatOptions[0].value,
+            0,
+            "0",
+          ],
+        ],
       }));
     }
   };
 
-  const onChangeSubStat = (subStat: SubStats) => (value: SubStats) => {
-    setFormData((form) => ({
-      ...form,
-      subStats: form.subStats.map((pair) =>
-        pair[0] === subStat ? [value, 0, "0"] : pair
-      ),
-    }));
-  };
+  const onChangeSubStat =
+    (subStat: SubStatFieldTypes) => (value: SubStatFieldTypes) => {
+      setFormData((form) => ({
+        ...form,
+        subStats: form.subStats.map((pair) =>
+          pair[0] === subStat ? [value, 0, "0"] : pair
+        ),
+      }));
+    };
 
   const onChangeSubStatNumber =
-    (subStat: SubStats) => (stringValue: string, value: number) => {
+    (subStat: SubStatFieldTypes) => (stringValue: string, value: number) => {
       console.log(stringValue, value);
       setFormData((form) => ({
         ...form,
@@ -286,7 +326,7 @@ export function ArtifactForm() {
       }));
     };
 
-  const onRemoveSubStat = (subStat: SubStats) => {
+  const onRemoveSubStat = (subStat: SubStatFieldTypes) => {
     setFormData((form) => ({
       ...form,
       subStats: form.subStats.filter((pair) => pair[0] !== subStat),
@@ -296,11 +336,14 @@ export function ArtifactForm() {
   const onCalculate = async () => {
     if (formData.mainStat) {
       setCalculating(true);
+      const subStats = formData.subStats.filter((sub) => sub[0] !== CRIT_VALUE);
+      const critValue = formData.subStats.find((sub) => sub[0] === CRIT_VALUE);
       const chance = await workerInstance.calculateChance({
         acceptBothSets: formData.acceptBothSets,
         type: formData.type,
         mainStat: formData.mainStat,
-        subStats: formData.subStats.reduce((acc, [subStat, value]) => {
+        critValue: critValue ? critValue[1] : null,
+        subStats: subStats.reduce((acc, [subStat, value]) => {
           return {
             ...acc,
             [subStat]: value,
@@ -372,15 +415,19 @@ export function ArtifactForm() {
             <VStack alignItems="start" width="100%">
               {formData.subStats.map((value, index) => {
                 const [subStat, , stringValue] = value;
+                const options = _.compact([
+                  mapSubStatOption(subStat),
+                  ...(subStat === CRIT_VALUE
+                    ? [mapSubStatOption(Stats.CR), mapSubStatOption(Stats.CD)]
+                    : []),
+                  ...subStatOptions,
+                ]);
                 return (
                   <HStack key={`substat-${index}`} width="100%">
                     <FormControl id={`substat-${index}-name`}>
                       <Select
                         value={subStat}
-                        items={[
-                          { label: subStat, value: subStat },
-                          ...subStatOptions,
-                        ]}
+                        items={options}
                         onChange={onChangeSubStat(subStat)}
                       />
                     </FormControl>
