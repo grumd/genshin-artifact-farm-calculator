@@ -18,9 +18,10 @@ import {
   PopoverArrow,
   PopoverCloseButton,
   Link,
+  Switch,
 } from "@chakra-ui/react";
 import styled from "styled-components";
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, memo, ChangeEvent } from "react";
 import { MdAddCircle } from "react-icons/md";
 import { FaRegQuestionCircle } from "react-icons/fa";
 import _ from "lodash/fp";
@@ -43,6 +44,7 @@ import {
 } from "recharts";
 
 interface FormData {
+  acceptBothSets: boolean;
   type: Types;
   mainStat?: MainStats;
   subStats: [SubStats, number, string][];
@@ -206,6 +208,7 @@ const ResultsBox = memo(
 
 export function ArtifactForm() {
   const [formData, setFormData] = useState<FormData>({
+    acceptBothSets: false,
     type: Types.Flower,
     subStats: [],
   });
@@ -213,8 +216,19 @@ export function ArtifactForm() {
   const [calculating, setCalculating] = useState<boolean>(false);
   const [chartData, setChartData] = useState<ChartDataEntry[]>([]);
 
+  const onChangeBothSets = (event: ChangeEvent<HTMLInputElement>) => {
+    setFormData((form) => ({
+      ...form,
+      acceptBothSets: !!event.target.checked,
+    }));
+  };
+
   const onChangeType = (value: Types) => {
-    setFormData({ type: value, subStats: [] }); // reset all
+    setFormData((form) => ({
+      acceptBothSets: form.acceptBothSets,
+      type: value,
+      subStats: [],
+    })); // reset all
   };
 
   const onChangeMainStat = (value: MainStats) => {
@@ -281,7 +295,8 @@ export function ArtifactForm() {
   const onCalculate = async () => {
     if (formData.mainStat) {
       setCalculating(true);
-      const chance: number = await workerInstance.calculateChance({
+      const chance = await workerInstance.calculateChance({
+        acceptBothSets: formData.acceptBothSets,
         type: formData.type,
         mainStat: formData.mainStat,
         subStats: formData.subStats.reduce((acc, [subStat, value]) => {
@@ -292,16 +307,7 @@ export function ArtifactForm() {
         }, {}),
       });
       setCalculating(false);
-      // const chance = calculateChance({
-      //   type: formData.type,
-      //   mainStat: formData.mainStat,
-      //   subStats: formData.subStats.reduce((acc, [subStat, value]) => {
-      //     return {
-      //       ...acc,
-      //       [subStat]: value,
-      //     };
-      //   }, {}),
-      // });
+
       const invertedChance = 1 - chance;
       const cumulativeChartData: { resin: number; chance: number }[] = [];
       let resinSpent = 0,
@@ -334,6 +340,16 @@ export function ArtifactForm() {
         padding={2}
       >
         <VStack padding="2" spacing="4">
+          <FormControl display="flex" alignItems="center">
+            <FormLabel cursor="pointer" htmlFor="one-set" size="lg" mb={1}>
+              Accept both artifact sets from a domain
+            </FormLabel>
+            <Switch
+              id="one-set"
+              onChange={onChangeBothSets}
+              isChecked={formData.acceptBothSets}
+            />
+          </FormControl>
           <FormControl id="type">
             <FormLabel>Artifact type:</FormLabel>
             <Select

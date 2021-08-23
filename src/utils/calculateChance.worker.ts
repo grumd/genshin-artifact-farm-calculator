@@ -14,6 +14,7 @@ interface CalculateOptions<
   M extends MainStatsByType<T>,
   Subs extends SubStatsByMain<M>
 > {
+  acceptBothSets: boolean;
   type: T;
   mainStat: M;
   subStats?: {
@@ -28,6 +29,7 @@ export const calculateChance = async <
   M extends MainStatsByType<T>,
   Subs extends SubStatsByMain<M>
 >({
+  acceptBothSets,
   type,
   mainStat,
   subStats = {},
@@ -37,7 +39,9 @@ export const calculateChance = async <
   let chance = 1.07;
 
   // Getting the correct artifact set
-  chance *= 0.5;
+  if (!acceptBothSets) {
+    chance *= 0.5;
+  }
 
   // Getting the correct type
   chance *= 0.2;
