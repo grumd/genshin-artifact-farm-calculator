@@ -162,7 +162,7 @@ const ResultsBox = memo(
           <ResponsiveContainer width="100%" aspect={2.5}>
             <AreaChart
               data={chartData}
-              margin={{ top: 5, right: 5, bottom: 5, left: 0 }}
+              margin={{ top: 5, right: 5, bottom: 5, left: -15 }}
             >
               <defs>
                 <linearGradient id="colorGrad" x1="0" y1="0" x2="0" y2="1">
