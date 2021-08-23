@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/genshin-artifact-farm-calculator/static/css/main.1e8b41b5.chunk.css",
-    "main.js": "/genshin-artifact-farm-calculator/static/js/main.e8b88d50.chunk.js",
-    "main.js.map": "/genshin-artifact-farm-calculator/static/js/main.e8b88d50.chunk.js.map",
+    "main.js": "/genshin-artifact-farm-calculator/static/js/main.f51c65e1.chunk.js",
+    "main.js.map": "/genshin-artifact-farm-calculator/static/js/main.f51c65e1.chunk.js.map",
     "runtime-main.js": "/genshin-artifact-farm-calculator/static/js/runtime-main.e935698f.js",
     "runtime-main.js.map": "/genshin-artifact-farm-calculator/static/js/runtime-main.e935698f.js.map",
     "static/js/2.baa8946a.chunk.js": "/genshin-artifact-farm-calculator/static/js/2.baa8946a.chunk.js",
@@ -20,6 +20,6 @@
     "static/js/runtime-main.e935698f.js",
     "static/js/2.baa8946a.chunk.js",
     "static/css/main.1e8b41b5.chunk.css",
-    "static/js/main.e8b88d50.chunk.js"
+    "static/js/main.f51c65e1.chunk.js"
   ]
 }
