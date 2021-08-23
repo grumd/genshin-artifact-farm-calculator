@@ -86,7 +86,7 @@ const ResultsBox = memo(
         padding={2}
         paddingLeft={4}
       >
-        {chances.chanceSubsMatch && (
+        {_.isNumber(chances.chanceSubsMatch) && (
           <Flex alignItems="center" flexFlow="row nowrap">
             <Text>Chance of getting an artifact with these stats:</Text>
             <Text
@@ -99,7 +99,7 @@ const ResultsBox = memo(
             </Text>
           </Flex>
         )}
-        {chances.upgradeChance && (
+        {_.isNumber(chances.upgradeChance) && (
           <Flex alignItems="center" flexFlow="row nowrap">
             <Text>Chance of upgrading to desired numbers:</Text>
             <Text
