@@ -134,16 +134,6 @@ const ResultsBox = memo(
                   This calculation assumes the following:
                 </Text>
                 <Text>5* artifacts upgraded to +20;</Text>
-                <Text>
-                  1.07 artifacts per run on average;{" "}
-                  <Link
-                    color="teal"
-                    isExternal
-                    href="https://docs.google.com/spreadsheets/d/1RcuniapqS6nOP05OCH0ui10Vo3bWu0AvFbhgcHzTybY/edit"
-                  >
-                    Source
-                  </Link>
-                </Text>
                 <Text>50% chance to get one of the two sets;</Text>
                 <Text>20% chance to get the correct artifact type;</Text>
                 <Text>
@@ -172,6 +162,16 @@ const ResultsBox = memo(
                     href="https://docs.google.com/spreadsheets/d/1sYQrV5Yp_QTVEKMLWquMu0mDgHhOO_Rh2LfcWdS_Eno/edit"
                   >
                     Source 2
+                  </Link>
+                </Text>
+                <Text>
+                  7% chance of getting two 5* artifacts per run;{" "}
+                  <Link
+                    color="teal"
+                    isExternal
+                    href="https://docs.google.com/spreadsheets/d/1RcuniapqS6nOP05OCH0ui10Vo3bWu0AvFbhgcHzTybY/edit"
+                  >
+                    Source
                   </Link>
                 </Text>
                 <Text marginTop={2}>

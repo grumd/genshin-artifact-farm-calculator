@@ -51,9 +51,7 @@ export const calculateChance = async <
   mainStat,
   subStats = {},
 }: CalculateOptions<T, M>): Promise<CalculateResult> => {
-  // Base chance is 1.07 because of https://docs.google.com/spreadsheets/d/1RcuniapqS6nOP05OCH0ui10Vo3bWu0AvFbhgcHzTybY/edit#gid=2061598189
-  // 1.07 is the average number of 5* artifacts from one run of a domain
-  let chance = 1.07,
+  let chance = 1,
     upgradeChance,
     totalChanceSubsMatch;
 
@@ -172,7 +170,13 @@ export const calculateChance = async <
     chance *= upgradeChance;
   }
 
-  console.log("Final chance:", chance);
+  // 7% chance of getting a 2nd artifact because of https://docs.google.com/spreadsheets/d/1RcuniapqS6nOP05OCH0ui10Vo3bWu0AvFbhgcHzTybY/edit#gid=2061598189
+  console.log("Chance for one artifact to be good:", chance);
+  chance = 1 - (1 - chance) * (1 - 0.07 * chance);
+  console.log(
+    "Chance for at least one artifact to be good from one domain run:",
+    chance
+  );
 
   return {
     chance,
