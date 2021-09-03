@@ -1,4 +1,4 @@
-import { BaseN, Combination } from "js-combinatorics";
+import { BaseN, Permutation } from "js-combinatorics";
 import _ from "lodash/fp";
 
 import {
@@ -72,7 +72,7 @@ export const calculateChance = async <
   if (neededSubStatList.length > 0) {
     // CHANCE OF GETTING THE SUB-STATS WE NEED INITIALLY
     // Getting all combinations of 4 sub-stats that are possible
-    const substatsCombinations = new Combination(
+    const substatsCombinations = new Permutation(
       allowedSubStats[mainStat],
       4
     ).toArray() as [
@@ -81,7 +81,7 @@ export const calculateChance = async <
       SubStatsByMain<M>,
       SubStatsByMain<M>
     ][];
-
+    console.log("Number of substat permutations:", substatsCombinations.length);
     const subChance = (subStatChances[type] as MainSubChanceMap<T>)[mainStat];
     // Combinations of sub-stats have different chances of appearing, calculate chances
     const combinationsWithChances = substatsCombinations.map((comb) => {
