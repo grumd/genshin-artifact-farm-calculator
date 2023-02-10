@@ -130,7 +130,7 @@ export const calculateChance = async <
             const initialSubStatValue = upgradeTiers[sub][tier];
             if (
               initialSubStatValue + (subsTotals[sub as SubStats] || 0) >=
-              subStats[sub]
+              subStats[sub]!
             ) {
               // With this initial value substat fits the criteria
               didThisSubStatFit = true;

@@ -26,6 +26,7 @@ export enum Stats {
   Anemo = "Anemo DMG Bonus%",
   Geo = "Geo DMG Bonus%",
   Physical = "Physical DMG Bonus%",
+  Dendro = "Dendro DMG Bonus%",
 }
 
 export type SubStats =
@@ -57,4 +58,5 @@ export type MainStats =
   | Stats.Hydro
   | Stats.Anemo
   | Stats.Geo
-  | Stats.Physical;
+  | Stats.Physical
+  | Stats.Dendro;

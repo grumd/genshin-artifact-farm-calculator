@@ -1,12 +1,13 @@
 import _ from "lodash/fp";
 
-export const getMeaningfulPercents = (value: number): string => {
-  let formattedChance: string = "0%";
-  if (_.isNil(value)) {
+export const getMeaningfulPercents = (
+  value: number | undefined | null
+): string => {
+  if (_.isNil(value) || !Number.isFinite(value)) {
     return "";
   }
   if (value === 0) {
-    return formattedChance;
+    return "0%";
   }
   let n = 0,
     num = 0;
@@ -17,5 +18,5 @@ export const getMeaningfulPercents = (value: number): string => {
     }
     n++;
   }
-  return (value * 100).toFixed(n + 2) + "%";
+  return (value * 100).toFixed(n + 2).replace(/([1-9])?\.?0+$/, "$1") + "%";
 };

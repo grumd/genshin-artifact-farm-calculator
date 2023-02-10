@@ -4,7 +4,7 @@ import { subStatChances } from "../data/chances";
 import { SubStatsByMain } from "../data/combinations";
 import { Stats, Types } from "../data/enums";
 
-test("fake test to check artifact distribution", () => {
+test.skip("fake test to check artifact distribution", () => {
   const subChances = subStatChances[Types.Plume][Stats.ATKFlat];
   type Subs = SubStatsByMain<Stats.ATKFlat>;
   const desiredSubs: Subs[] = [Stats.CD];

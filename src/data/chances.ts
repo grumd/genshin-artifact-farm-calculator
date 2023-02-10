@@ -19,9 +19,9 @@ export const mainStatChances: TypeMap = {
     [Stats.EM]: 0.1,
   },
   [Types.Goblet]: {
-    [Stats.HP]: 0.2125,
-    [Stats.ATK]: 0.2125,
-    [Stats.DEF]: 0.2,
+    [Stats.HP]: 0.1925,
+    [Stats.ATK]: 0.1925,
+    [Stats.DEF]: 0.19,
     [Stats.Pyro]: 0.05,
     [Stats.Electro]: 0.05,
     [Stats.Cryo]: 0.05,
@@ -29,6 +29,7 @@ export const mainStatChances: TypeMap = {
     [Stats.Anemo]: 0.05,
     [Stats.Geo]: 0.05,
     [Stats.Physical]: 0.05,
+    [Stats.Dendro]: 0.05,
     [Stats.EM]: 0.025,
   },
   [Types.Circlet]: {
@@ -191,6 +192,7 @@ export const subStatChances: TypeMainSubChanceMap = {
     [Stats.Anemo]: dmgBonusChances,
     [Stats.Geo]: dmgBonusChances,
     [Stats.Physical]: dmgBonusChances,
+    [Stats.Dendro]: dmgBonusChances,
     [Stats.EM]: {
       [Stats.HPFlat]: 0.15,
       [Stats.ATKFlat]: 0.15,

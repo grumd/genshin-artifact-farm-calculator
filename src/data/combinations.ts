@@ -32,6 +32,7 @@ const allMainStats: MainStats[] = [
   Stats.Anemo,
   Stats.Geo,
   Stats.Physical,
+  Stats.Dendro,
 ];
 
 export type MainStatsByType<Type extends Types> = Type extends Types.Flower
@@ -52,6 +53,7 @@ export type MainStatsByType<Type extends Types> = Type extends Types.Flower
       | Stats.Anemo
       | Stats.Geo
       | Stats.Physical
+      | Stats.Dendro
       | Stats.EM
   : Type extends Types.Circlet
   ? Stats.HP | Stats.ATK | Stats.DEF | Stats.CR | Stats.CD | Stats.HB | Stats.EM
@@ -77,6 +79,7 @@ export const allowedMainStats: { [T in Types]: MainStatsByType<T>[] } = {
     Stats.Anemo,
     Stats.Geo,
     Stats.Physical,
+    Stats.Dendro,
     Stats.EM,
   ],
   [Types.Circlet]: [

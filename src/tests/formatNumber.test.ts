@@ -1,0 +1,35 @@
+import { getMeaningfulPercents } from "../utils/formatNumber";
+
+test("formats percents correctly", () => {
+  expect(getMeaningfulPercents(0)).toBe("0%");
+  expect(getMeaningfulPercents(1)).toBe("100%");
+  expect(getMeaningfulPercents(null)).toBe("");
+  expect(getMeaningfulPercents(undefined)).toBe("");
+  expect(getMeaningfulPercents(NaN)).toBe("");
+  expect(getMeaningfulPercents(0 / 0)).toBe("");
+  expect(getMeaningfulPercents(Infinity)).toBe("");
+  expect(getMeaningfulPercents(0.1)).toBe("10%");
+  expect(getMeaningfulPercents(0.12)).toBe("12%");
+  expect(getMeaningfulPercents(0.123)).toBe("12.3%");
+  expect(getMeaningfulPercents(0.1234)).toBe("12.34%");
+  expect(getMeaningfulPercents(0.12341)).toBe("12.34%");
+  expect(getMeaningfulPercents(0.12345)).toBe("12.35%");
+  expect(getMeaningfulPercents(0.12349)).toBe("12.35%");
+  expect(getMeaningfulPercents(0.123456789)).toBe("12.35%");
+  expect(getMeaningfulPercents(0.023456789)).toBe("2.35%");
+  expect(getMeaningfulPercents(0.003456789)).toBe("0.346%");
+  expect(getMeaningfulPercents(0.000456789)).toBe("0.0457%");
+  expect(getMeaningfulPercents(0.000056789)).toBe("0.00568%");
+  expect(getMeaningfulPercents(0.000006789)).toBe("0.000679%");
+  expect(getMeaningfulPercents(0.000000789)).toBe("0.0000789%");
+  expect(getMeaningfulPercents(0.000000089)).toBe("0.0000089%");
+  expect(getMeaningfulPercents(0.000000009)).toBe("0.0000009%");
+  expect(getMeaningfulPercents(0.001001)).toBe("0.1%");
+  expect(getMeaningfulPercents(0.00101)).toBe("0.101%");
+  expect(getMeaningfulPercents(0.0010101)).toBe("0.101%");
+  expect(getMeaningfulPercents(0.0001001)).toBe("0.01%");
+  expect(getMeaningfulPercents(0.000101)).toBe("0.0101%");
+  expect(getMeaningfulPercents(0.00010101)).toBe("0.0101%");
+  expect(getMeaningfulPercents(1e-18)).toBe("0%");
+  expect(getMeaningfulPercents(3)).toBe("300%");
+});
