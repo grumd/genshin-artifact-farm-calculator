@@ -1,8 +1,6 @@
 import _ from "lodash/fp";
 
-export const getMeaningfulPercents = (
-  value: number | undefined | null
-): string => {
+export const getMeaningfulPercents = (value?: number): string => {
   if (_.isNil(value) || !Number.isFinite(value)) {
     return "";
   }
@@ -19,4 +17,16 @@ export const getMeaningfulPercents = (
     n++;
   }
   return (value * 100).toFixed(n + 2).replace(/([1-9])?\.?0+$/, "$1") + "%";
+};
+
+const rtf =
+  Intl &&
+  Intl.RelativeTimeFormat &&
+  new Intl.RelativeTimeFormat(undefined, {
+    style: "short",
+    numeric: "always",
+  });
+
+export const getResinDays = (value: number) => {
+  return rtf ? rtf.format(Math.round(value / 160), "days") : `${value}`;
 };

@@ -16,7 +16,7 @@ import _ from "lodash/fp";
 import { Popup } from "./Popup";
 
 import type { CalculateResult } from "../utils/calculateChance.worker";
-import { getMeaningfulPercents } from "../utils/formatNumber";
+import { getMeaningfulPercents, getResinDays } from "../utils/formatNumber";
 
 export interface ChartDataEntry {
   resin: number;
@@ -156,7 +156,9 @@ export const ResultsBox = memo(
             }
           />
         </Flex>
-        <Text>Cumulative chance to get this artifact at least once:</Text>
+        <Text>
+          Chance to get this artifact at least once (160 resin per day):
+        </Text>
         {chances.chance > 0 && !_.isEmpty(chartData) && (
           <ResponsiveContainer width="100%" aspect={2.5}>
             <AreaChart
@@ -177,7 +179,11 @@ export const ResultsBox = memo(
                 stroke="#8884d8"
               />
               <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-              <XAxis dataKey="resin" />
+              <XAxis
+                dataKey="resin"
+                minTickGap={40}
+                tickFormatter={getResinDays}
+              />
               <YAxis
                 domain={[0, 1]}
                 tickFormatter={(value) => (value * 100).toFixed(0) + "%"}

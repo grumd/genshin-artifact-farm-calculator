@@ -3,7 +3,6 @@ import { getMeaningfulPercents } from "../utils/formatNumber";
 test("formats percents correctly", () => {
   expect(getMeaningfulPercents(0)).toBe("0%");
   expect(getMeaningfulPercents(1)).toBe("100%");
-  expect(getMeaningfulPercents(null)).toBe("");
   expect(getMeaningfulPercents(undefined)).toBe("");
   expect(getMeaningfulPercents(NaN)).toBe("");
   expect(getMeaningfulPercents(0 / 0)).toBe("");
