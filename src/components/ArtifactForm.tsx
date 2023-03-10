@@ -19,7 +19,6 @@ import _ from "lodash/fp";
 
 import { ResultsBox } from "./ResultsBox";
 import { Select } from "./Select";
-import type { ChartDataEntry } from "./ResultsBox";
 
 import { allowedMainStats, allowedSubStats } from "../data/combinations";
 import { MainStats, SubStats, Types } from "../data/enums";
@@ -45,9 +44,8 @@ export function ArtifactForm() {
     type: Types.Flower,
     subStats: [],
   });
-  const [chances, setChances] = useState<Partial<CalculateResult>>({});
+  const [chances, setChances] = useState<CalculateResult>({ chance: 0 });
   const [calculating, setCalculating] = useState<boolean>(false);
-  const [chartData, setChartData] = useState<ChartDataEntry[]>([]);
 
   const onChangeBothSets = (event: ChangeEvent<HTMLInputElement>) => {
     setFormData((form) => ({
@@ -148,27 +146,6 @@ export function ArtifactForm() {
       performance.clearMarks();
       performance.clearMeasures();
 
-      const invertedChance = 1 - chance;
-      const cumulativeChartData: { resin: number; chance: number }[] = [];
-      let resinSpent = 0,
-        cumulativeInvertedChance = 1;
-      const step =
-        chance > 0.01 ? 1 : chance > 0.005 ? 4 : chance > 0.001 ? 8 : 16;
-      // 2920 is 365 days of 8 domain runs per day
-      for (let i = 0; i < 2920; i++) {
-        if (cumulativeInvertedChance < 0.05) {
-          break;
-        }
-        resinSpent += 20;
-        cumulativeInvertedChance *= invertedChance;
-        if (!((i + 1) % step)) {
-          cumulativeChartData.push({
-            resin: resinSpent,
-            chance: 1 - cumulativeInvertedChance,
-          });
-        }
-      }
-      setChartData(cumulativeChartData);
       setChances({ chance, upgradeChance, chanceSubsMatch });
     }
   };
@@ -271,12 +248,7 @@ export function ArtifactForm() {
           </Button>
         </VStack>
       </Box>
-      {!_.isNil(chances.chance) && (
-        <ResultsBox
-          chances={chances as CalculateResult}
-          chartData={chartData}
-        />
-      )}
+      {chances.chance > 0 && <ResultsBox chances={chances} />}
     </Flex>
   );
 }
