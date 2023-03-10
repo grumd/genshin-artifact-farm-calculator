@@ -22,11 +22,11 @@ export const getMeaningfulPercents = (value?: number): string => {
 const rtf =
   Intl &&
   Intl.RelativeTimeFormat &&
-  new Intl.RelativeTimeFormat(undefined, {
+  new Intl.RelativeTimeFormat("en", {
     style: "short",
     numeric: "always",
   });
 
-export const getResinDays = (value: number) => {
-  return rtf ? rtf.format(Math.round(value / 160), "days") : `${value}`;
+export const getResinDays = (resinPerDay: number) => (value: number) => {
+  return rtf ? rtf.format(Math.round(value / resinPerDay), "days") : `${value}`;
 };

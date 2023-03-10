@@ -1,6 +1,13 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import styled from "styled-components";
-import { Text, Box, Flex, Link } from "@chakra-ui/react";
+import {
+  Text,
+  Box,
+  Flex,
+  Link,
+  NumberInput,
+  NumberInputField,
+} from "@chakra-ui/react";
 import {
   Area,
   AreaChart,
@@ -35,6 +42,16 @@ const QuestionIconContainer = styled.div`
   font-size: 120%;
 `;
 
+const ResinInput = styled(NumberInput)`
+  width: 3em;
+  margin-left: 0.3em;
+  display: inline-block;
+  & > input {
+    padding: 0.3em;
+    height: 1.75em;
+  }
+`;
+
 export const ResultsBox = memo(
   ({
     chances,
@@ -43,6 +60,10 @@ export const ResultsBox = memo(
     chances: CalculateResult;
     chartData: ChartDataEntry[];
   }) => {
+    const [resinPerDayString, setResinPerDay] = useState("160");
+    const converted = Number(resinPerDayString);
+    const resinPerDay = isNaN(converted) || converted < 1 ? 160 : converted;
+
     return (
       <Box
         margin={1}
@@ -156,8 +177,17 @@ export const ResultsBox = memo(
             }
           />
         </Flex>
-        <Text>
-          Chance to get this artifact at least once (160 resin per day):
+        <Text css={{}}>
+          Chance to get this artifact at least once (
+          <ResinInput
+            min={20}
+            defaultValue={160}
+            value={resinPerDayString}
+            onChange={setResinPerDay}
+          >
+            <NumberInputField />
+          </ResinInput>{" "}
+          resin per day):
         </Text>
         {chances.chance > 0 && !_.isEmpty(chartData) && (
           <ResponsiveContainer width="100%" aspect={2.5}>
@@ -182,7 +212,7 @@ export const ResultsBox = memo(
               <XAxis
                 dataKey="resin"
                 minTickGap={40}
-                tickFormatter={getResinDays}
+                tickFormatter={getResinDays(resinPerDay)}
               />
               <YAxis
                 domain={[0, 1]}
@@ -196,7 +226,7 @@ export const ResultsBox = memo(
                     return (
                       <TooltipContainer>
                         <div>Resin: {item.resin}</div>
-                        <div>Days: {item.resin / 160}</div>
+                        <div>Days: {item.resin / resinPerDay}</div>
                         <div>Chance: {getMeaningfulPercents(item.chance)}</div>
                       </TooltipContainer>
                     );
