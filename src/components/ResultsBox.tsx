@@ -1,5 +1,5 @@
 import { memo, useMemo, useState } from "react";
-import styled from "styled-components";
+import styled from "@emotion/styled";
 import {
   Text,
   Box,

@@ -174,5 +174,5 @@ export const calculateChance = ({
 
 Comlink.expose(
   { calculateChance },
-  process.env.VITEST ? (self as Comlink.Endpoint) : undefined
+  import.meta.env.VITEST ? (self as Comlink.Endpoint) : undefined
 );

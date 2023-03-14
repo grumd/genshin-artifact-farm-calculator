@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { usePopper } from "react-popper";
 import useOnclickOutside from "react-cool-onclickoutside";
-import styled from "styled-components";
+import styled from "@emotion/styled";
 
 interface PopupProps {
   target: JSX.Element;

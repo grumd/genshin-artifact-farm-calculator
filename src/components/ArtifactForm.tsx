@@ -45,7 +45,7 @@ const typeOptions: { value: Types; label: string }[] = _.values(Types).map(
   (type) => ({ label: type, value: type })
 );
 
-export function ArtifactForm() {
+function ArtifactForm() {
   const [formData, setFormData] = useState<FormData>({
     acceptBothSets: false,
     type: Types.Flower,
@@ -161,7 +161,7 @@ export function ArtifactForm() {
     <Flex flexFlow="column wrap" width="100%" alignItems="center">
       <Box
         margin={1}
-        marginBottom={3}
+        marginBottom={1}
         maxW="95%"
         width="lg"
         borderWidth="1px"
@@ -256,9 +256,11 @@ export function ArtifactForm() {
           </Button>
         </VStack>
       </Box>
-      <Suspense fallback={<Spinner />}>
+      <Suspense fallback={<Spinner marginTop={3} />}>
         {chances.chance > 0 && <ResultsBox chances={chances} />}
       </Suspense>
     </Flex>
   );
 }
+
+export default ArtifactForm;

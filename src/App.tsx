@@ -1,5 +1,8 @@
-import styled from "styled-components";
-import { ArtifactForm } from "./components/ArtifactForm";
+import { Suspense, lazy } from "react";
+import styled from "@emotion/styled";
+import { Spinner } from "@chakra-ui/react";
+
+const ArtifactForm = lazy(() => import("./components/ArtifactForm"));
 
 const MainContainer = styled.div`
   background-color: #282c34;
@@ -14,7 +17,9 @@ const MainContainer = styled.div`
 function App() {
   return (
     <MainContainer>
-      <ArtifactForm />
+      <Suspense fallback={<Spinner />}>
+        <ArtifactForm />
+      </Suspense>
     </MainContainer>
   );
 }

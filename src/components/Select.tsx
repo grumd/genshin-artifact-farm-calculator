@@ -3,7 +3,7 @@ import {
   Select as ChakraSelect,
   SelectProps as ChakraSelectProps,
 } from "@chakra-ui/select";
-import styled from "styled-components";
+import styled from "@emotion/styled";
 
 const Option = styled.option`
   color: black;
