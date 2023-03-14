@@ -35,36 +35,7 @@ const allMainStats: MainStats[] = [
   Stats.Dendro,
 ];
 
-export type MainStatsByType<Type extends Types> = Type extends Types.Flower
-  ? Stats.HPFlat
-  : Type extends Types.Plume
-  ? Stats.ATKFlat
-  : Type extends Types.Sands
-  ? Stats.HP | Stats.ATK | Stats.DEF | Stats.ER | Stats.EM
-  : Type extends Types.Goblet
-  ?
-      | Stats.HP
-      | Stats.ATK
-      | Stats.DEF
-      | Stats.Pyro
-      | Stats.Electro
-      | Stats.Cryo
-      | Stats.Hydro
-      | Stats.Anemo
-      | Stats.Geo
-      | Stats.Physical
-      | Stats.Dendro
-      | Stats.EM
-  : Type extends Types.Circlet
-  ? Stats.HP | Stats.ATK | Stats.DEF | Stats.CR | Stats.CD | Stats.HB | Stats.EM
-  : never;
-
-export type SubStatsByMain<MainStat extends MainStats> = Exclude<
-  SubStats,
-  MainStat
->;
-
-export const allowedMainStats: { [T in Types]: MainStatsByType<T>[] } = {
+export const allowedMainStats: Record<Types, MainStats[]> = {
   [Types.Flower]: [Stats.HPFlat],
   [Types.Plume]: [Stats.ATKFlat],
   [Types.Sands]: [Stats.HP, Stats.ATK, Stats.DEF, Stats.ER, Stats.EM],

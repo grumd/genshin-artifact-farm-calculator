@@ -52,7 +52,7 @@ const ResinInput = styled(NumberInput)`
   }
 `;
 
-export const ResultsBox = memo(({ chances }: { chances: CalculateResult }) => {
+const ResultsBox = memo(({ chances }: { chances: CalculateResult }) => {
   const [resinPerDayString, setResinPerDay] = useState("160");
   const converted = Number(resinPerDayString);
   const resinPerDay = isNaN(converted) || converted < 1 ? 160 : converted;
@@ -259,3 +259,5 @@ export const ResultsBox = memo(({ chances }: { chances: CalculateResult }) => {
     </Box>
   );
 });
+
+export default ResultsBox;

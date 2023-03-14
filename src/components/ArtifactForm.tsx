@@ -1,4 +1,5 @@
-import { useState, useEffect, ChangeEvent } from "react";
+import { lazy, useState, useEffect, ChangeEvent, Suspense } from "react";
+import * as Comlink from "comlink";
 import {
   Button,
   IconButton,
@@ -13,17 +14,17 @@ import {
   CloseButton,
   Flex,
   Switch,
+  Spinner,
 } from "@chakra-ui/react";
 import { MdAddCircle } from "react-icons/md";
 import _ from "lodash/fp";
 
-import { ResultsBox } from "./ResultsBox";
 import { Select } from "./Select";
-
 import { allowedMainStats, allowedSubStats } from "../data/combinations";
 import { MainStats, SubStats, Types } from "../data/enums";
-import WorkerCalculateChance from "../utils/calculateChance.worker";
 import type { CalculateResult } from "../utils/calculateChance.worker";
+
+const ResultsBox = lazy(() => import("./ResultsBox"));
 
 interface FormData {
   acceptBothSets: boolean;
@@ -32,7 +33,13 @@ interface FormData {
   subStats: [SubStats, number, string][];
 }
 
-const workerInstance = WorkerCalculateChance();
+const calculateChanceWorker = Comlink.wrap<
+  typeof import("../utils/calculateChance.worker")
+>(
+  new Worker(new URL("../utils/calculateChance.worker.ts", import.meta.url), {
+    type: "module",
+  })
+);
 
 const typeOptions: { value: Types; label: string }[] = _.values(Types).map(
   (type) => ({ label: type, value: type })
@@ -127,7 +134,7 @@ export function ArtifactForm() {
       setCalculating(true);
       performance.mark("chance");
       const { chance, upgradeChance, chanceSubsMatch } =
-        await workerInstance.calculateChance({
+        await calculateChanceWorker.calculateChance({
           acceptBothSets: formData.acceptBothSets,
           type: formData.type,
           mainStat: formData.mainStat,
@@ -154,6 +161,7 @@ export function ArtifactForm() {
     <Flex flexFlow="column wrap" width="100%" alignItems="center">
       <Box
         margin={1}
+        marginBottom={3}
         maxW="95%"
         width="lg"
         borderWidth="1px"
@@ -248,7 +256,9 @@ export function ArtifactForm() {
           </Button>
         </VStack>
       </Box>
-      {chances.chance > 0 && <ResultsBox chances={chances} />}
+      <Suspense fallback={<Spinner />}>
+        {chances.chance > 0 && <ResultsBox chances={chances} />}
+      </Suspense>
     </Flex>
   );
 }

@@ -1,8 +1,16 @@
-import WorkerCalculateChance from "../utils/calculateChance.worker";
 import { Types, Stats } from "../data/enums";
+import * as Comlink from "comlink";
+
+const getWorker = () => {
+  return Comlink.wrap<typeof import("../utils/calculateChance.worker")>(
+    new Worker(new URL("../utils/calculateChance.worker.ts", import.meta.url), {
+      type: "module",
+    })
+  );
+};
 
 test("calculates chance without substats", async () => {
-  const workerInstance = WorkerCalculateChance();
+  const workerInstance = getWorker();
 
   const { chance, upgradeChance, chanceSubsMatch } =
     await workerInstance.calculateChance({
@@ -18,7 +26,7 @@ test("calculates chance without substats", async () => {
 });
 
 test("calculates chance with substats", async () => {
-  const workerInstance = WorkerCalculateChance();
+  const workerInstance = getWorker();
 
   const { chance, upgradeChance, chanceSubsMatch } =
     await workerInstance.calculateChance({
@@ -34,7 +42,7 @@ test("calculates chance with substats", async () => {
 });
 
 test("calculates chance with acceptBothSets: false", async () => {
-  const workerInstance = WorkerCalculateChance();
+  const workerInstance = getWorker();
 
   const { chance, upgradeChance, chanceSubsMatch } =
     await workerInstance.calculateChance({
@@ -50,7 +58,7 @@ test("calculates chance with acceptBothSets: false", async () => {
 });
 
 test("calculates chance for Plume", async () => {
-  const workerInstance = WorkerCalculateChance();
+  const workerInstance = getWorker();
 
   const { chance, upgradeChance, chanceSubsMatch } =
     await workerInstance.calculateChance({
@@ -66,7 +74,7 @@ test("calculates chance for Plume", async () => {
 });
 
 test("calculates chance for Sands with ATK%", async () => {
-  const workerInstance = WorkerCalculateChance();
+  const workerInstance = getWorker();
 
   const { chance, upgradeChance, chanceSubsMatch } =
     await workerInstance.calculateChance({
@@ -82,7 +90,7 @@ test("calculates chance for Sands with ATK%", async () => {
 });
 
 test("calculates chance for Sands with EM", async () => {
-  const workerInstance = WorkerCalculateChance();
+  const workerInstance = getWorker();
 
   const { chance, upgradeChance, chanceSubsMatch } =
     await workerInstance.calculateChance({
@@ -98,7 +106,7 @@ test("calculates chance for Sands with EM", async () => {
 });
 
 test("calculates chance for Goblet", async () => {
-  const workerInstance = WorkerCalculateChance();
+  const workerInstance = getWorker();
 
   const { chance, upgradeChance, chanceSubsMatch } =
     await workerInstance.calculateChance({
@@ -114,7 +122,7 @@ test("calculates chance for Goblet", async () => {
 });
 
 test("calculates chance for Circlet", async () => {
-  const workerInstance = WorkerCalculateChance();
+  const workerInstance = getWorker();
 
   const { chance, upgradeChance, chanceSubsMatch } =
     await workerInstance.calculateChance({
@@ -130,7 +138,7 @@ test("calculates chance for Circlet", async () => {
 });
 
 test("chance for impossible request is zero", async () => {
-  const workerInstance = WorkerCalculateChance();
+  const workerInstance = getWorker();
 
   const { chance, upgradeChance, chanceSubsMatch } =
     await workerInstance.calculateChance({
@@ -146,7 +154,7 @@ test("chance for impossible request is zero", async () => {
 });
 
 test("default parameters", async () => {
-  const workerInstance = WorkerCalculateChance();
+  const workerInstance = getWorker();
 
   const { chance } = await workerInstance.calculateChance({
     acceptBothSets: true,
