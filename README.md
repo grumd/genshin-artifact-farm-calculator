@@ -2,7 +2,7 @@
 
 A small React app that allows calculating the chance of getting a certain artifact in Genshin Impact at least once over time.
 
-Used: Vite, React 18, Chakra UI, styled-components.
+Used: Vite, React 18, Chakra UI.
 
 Run locally with `npm start`.
 
