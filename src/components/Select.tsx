@@ -23,7 +23,7 @@ export function Select<T extends string>({
   ...rest
 }: SelectProps<T>) {
   const onChangeSelect = useCallback(
-    (event) => {
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
       const value = event.target.value as T;
       onChange(value);
     },

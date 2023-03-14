@@ -1,10 +1,36 @@
-import { MainStatsByType, SubStatsByMain } from "./combinations";
 import { MainStats, Stats, SubStats, Types } from "./enums";
 
-export type StatMap<T extends Types> = { [Stat in MainStatsByType<T>]: number };
-export type TypeMap = { [T in Types]: StatMap<T> };
+export const upgradeTiers = {
+  [Stats.HPFlat]: [209, 239, 269, 299],
+  [Stats.HP]: [4.1, 4.7, 5.3, 5.8],
+  [Stats.ATKFlat]: [14, 16, 18, 19],
+  [Stats.ATK]: [4.1, 4.7, 5.3, 5.8],
+  [Stats.DEFFlat]: [16, 19, 21, 23],
+  [Stats.DEF]: [5.1, 5.8, 6.6, 7.3],
+  [Stats.CR]: [2.7, 3.1, 3.5, 3.9],
+  [Stats.CD]: [5.4, 6.2, 7.0, 7.8],
+  [Stats.ER]: [4.5, 5.2, 5.8, 6.5],
+  [Stats.EM]: [16, 19, 21, 23],
+} satisfies Record<SubStats, [number, number, number, number]>;
 
-export const mainStatChances: TypeMap = {
+const dmgBonusChances = {
+  [Stats.HPFlat]: 0.1364,
+  [Stats.ATKFlat]: 0.1364,
+  [Stats.DEFFlat]: 0.1364,
+  [Stats.HP]: 0.0909,
+  [Stats.ATK]: 0.0909,
+  [Stats.DEF]: 0.0909,
+  [Stats.ER]: 0.0909,
+  [Stats.EM]: 0.0909,
+  [Stats.CR]: 0.0682,
+  [Stats.CD]: 0.0682,
+} satisfies Record<SubStats, number>;
+
+export const mainStatChances: {
+  [K1 in Types]: {
+    [K2 in MainStats]?: number;
+  };
+} = {
   [Types.Flower]: {
     [Stats.HPFlat]: 1,
   },
@@ -43,31 +69,13 @@ export const mainStatChances: TypeMap = {
   },
 };
 
-const dmgBonusChances: {
-  [SubStat in SubStatsByMain<Stats.Physical>]: number;
+export const subStatChances: {
+  [K1 in Types]: {
+    [K2 in MainStats]?: {
+      [K3 in SubStats]?: number;
+    };
+  };
 } = {
-  [Stats.HPFlat]: 0.1364,
-  [Stats.ATKFlat]: 0.1364,
-  [Stats.DEFFlat]: 0.1364,
-  [Stats.HP]: 0.0909,
-  [Stats.ATK]: 0.0909,
-  [Stats.DEF]: 0.0909,
-  [Stats.ER]: 0.0909,
-  [Stats.EM]: 0.0909,
-  [Stats.CR]: 0.0682,
-  [Stats.CD]: 0.0682,
-};
-
-export type SubChanceMap<MainStat extends MainStats> = {
-  [SubStat in SubStatsByMain<MainStat>]: number;
-};
-export type MainSubChanceMap<T extends Types> = {
-  [MainStat in MainStatsByType<T>]: SubChanceMap<MainStat>;
-};
-export type TypeMainSubChanceMap = {
-  [T in Types]: MainSubChanceMap<T>;
-};
-export const subStatChances: TypeMainSubChanceMap = {
   [Types.Flower]: {
     [Stats.HPFlat]: {
       [Stats.ATKFlat]: 0.1579,
@@ -275,17 +283,3 @@ export const subStatChances: TypeMainSubChanceMap = {
     },
   },
 };
-
-export const upgradeTiers: Record<SubStats, [number, number, number, number]> =
-  {
-    [Stats.HPFlat]: [209, 239, 269, 299],
-    [Stats.HP]: [4.1, 4.7, 5.3, 5.8],
-    [Stats.ATKFlat]: [14, 16, 18, 19],
-    [Stats.ATK]: [4.1, 4.7, 5.3, 5.8],
-    [Stats.DEFFlat]: [16, 19, 21, 23],
-    [Stats.DEF]: [5.1, 5.8, 6.6, 7.3],
-    [Stats.CR]: [2.7, 3.1, 3.5, 3.9],
-    [Stats.CD]: [5.4, 6.2, 7.0, 7.8],
-    [Stats.ER]: [4.5, 5.2, 5.8, 6.5],
-    [Stats.EM]: [16, 19, 21, 23],
-  };

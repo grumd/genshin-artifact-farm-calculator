@@ -1,14 +1,16 @@
 import { Permutation } from "js-combinatorics";
 import _ from "lodash/fp";
 import { subStatChances } from "../data/chances";
-import { SubStatsByMain } from "../data/combinations";
-import { Stats, Types } from "../data/enums";
+import { Stats, SubStats, Types } from "../data/enums";
 
 test.skip("fake test to check artifact distribution", () => {
   const subChances = subStatChances[Types.Plume][Stats.ATKFlat];
-  type Subs = SubStatsByMain<Stats.ATKFlat>;
-  const desiredSubs: Subs[] = [Stats.CD];
-  console.log(subChances);
+  const desiredSubs: SubStats[] = [Stats.CD];
+
+  if (!subChances) {
+    throw new Error("No sub chances for this artifact");
+  }
+
   const createArtifact = (): string[] => {
     let totalWeight = 1;
     let subsPool = _.toPairs(subChances);
@@ -56,18 +58,20 @@ test.skip("fake test to check artifact distribution", () => {
   console.log("Real world count:", count / artifacts.length);
 
   const substatsCombinations = new Permutation(
-    _.keys(subChances),
+    _.keys(subChances) as SubStats[],
     4
-  ).toArray() as [Subs, Subs, Subs, Subs][];
+  ).toArray();
+
   console.log(
     "Number of combinations of sub stats:",
     substatsCombinations.length
   );
+
   const withChance = substatsCombinations.map((comb) => {
     let weight = 1;
     let chance = 1;
     for (let i = 0; i < 4; i++) {
-      const ch = subChances[comb[i]];
+      const ch = subChances[comb[i]] ?? 0;
       chance *= ch / weight;
       weight -= ch;
     }
